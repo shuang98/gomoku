@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import mouseListener from "./lib/mouse-listener";
 import { ClientOnlyGame } from './game';
+import { GameScene } from './scene';
 import oImage from '../images/o.png';
 import xImage from '../images/x.png'
 
@@ -41,15 +42,8 @@ let mouse = mouseListener();
 document.addEventListener("contextmenu", function(e) {
   e.preventDefault();
 }, false);
-
-let game = new ClientOnlyGame({
-  boardSize: BOARD_SIZE,
-  boxSize: BOX_SIZE,
-  viewport: viewport,
-  app: app,
-  mouse: mouse
-})
+let gameScene = new GameScene(app, viewport, mouse);
 app.loader
   .add('o', oImage)
   .add('x', xImage)
-  .load(game.getLoadFunction());
+  .load(gameScene.sceneLoadFunction);
