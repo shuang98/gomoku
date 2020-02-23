@@ -44,7 +44,6 @@ export class GameOverScene extends Scene {
     button.x = this.viewport.worldWidth / 2;
     button.y = this.viewport.worldHeight / 2;
     return button;
-
   }
 
   mainMenuButton() {
