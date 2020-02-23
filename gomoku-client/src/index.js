@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { GameScene } from './scenes/game-scene';
 import oImage from '../images/o.png';
 import xImage from '../images/x.png'
+import { MainMenuScene } from './scenes/mainmenu-scene';
 
 let BOARD_SIZE = 19;
 let BOX_SIZE = 40;
@@ -30,16 +30,14 @@ window.addEventListener("resize", event => {
 document.body.appendChild(app.view);
 
 app.stage.addChild(viewport);
-
 viewport
   .decelerate();
 viewport.moveCenter(WORLD_SIZE / 2, WORLD_SIZE / 2);
-
 document.addEventListener("contextmenu", function(e) {
   e.preventDefault();
 }, false);
-let gameScene = new GameScene(app, viewport);
+let mainMenuScene = new MainMenuScene(app, viewport);
 app.loader
   .add('o', oImage)
   .add('x', xImage)
-  .load(gameScene.sceneLoadFunction);
+  .load(mainMenuScene.sceneLoadFunction);
