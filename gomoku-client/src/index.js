@@ -1,8 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import mouseListener from "./lib/mouse-listener";
-import { ClientOnlyGame } from './game';
-import { GameScene } from './scene';
+import { GameScene } from './scenes/game-scene';
 import oImage from '../images/o.png';
 import xImage from '../images/x.png'
 
@@ -26,6 +24,7 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 window.addEventListener("resize", event => {
   app.renderer.resize(window.innerWidth, window.innerHeight);
   viewport.resize(window.innerWidth, window.innerHeight, WORLD_SIZE, WORLD_SIZE);
+  viewport.moveCenter(WORLD_SIZE / 2, WORLD_SIZE / 2);
 })
 
 document.body.appendChild(app.view);
@@ -33,16 +32,13 @@ document.body.appendChild(app.view);
 app.stage.addChild(viewport);
 
 viewport
-  .drag()
-  .bounce({ direction: "all" })
   .decelerate();
 viewport.moveCenter(WORLD_SIZE / 2, WORLD_SIZE / 2);
 
-let mouse = mouseListener();
 document.addEventListener("contextmenu", function(e) {
   e.preventDefault();
 }, false);
-let gameScene = new GameScene(app, viewport, mouse);
+let gameScene = new GameScene(app, viewport);
 app.loader
   .add('o', oImage)
   .add('x', xImage)

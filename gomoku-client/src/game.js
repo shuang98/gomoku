@@ -11,6 +11,7 @@ class Game {
     );
     this.turn = this.X;
     this.onFinished = (winner) => {};
+    this.finished = false;
   }
 
   /**
@@ -21,6 +22,7 @@ class Game {
   selectSquare(row, col) {
     this.board[row][col] = this.turn;
     if (this.isFiveInARow(row, col)) {
+      this.finished = true;
       this.onFinished(this.turn);
     }
     this.turn = this.turn == this.X ? this.O : this.X

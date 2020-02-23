@@ -1,79 +1,23 @@
 import * as PIXI from 'pixi.js'
-import { clamp } from "./lib/utils";
-import Game from "./game";
-
-class Scene {
-  constructor(app, viewport) {
-    this.app = app;
-    this.viewport = viewport;
-    this.viewContainer = new PIXI.Container();
-    this.tickerFunctions = {};
-    this.sceneLoadFunction = this.sceneLoadFunction.bind(this);
-  }
-
-  /**
-   * Scene load function that initializes scene
-   * @param {*} loader 
-   * @param {*} resources 
-   */
-  sceneLoadFunction(loader, resources) {
-    this.viewport.addChild(this.viewContainer);
-    this.loader = loader;
-    this.resoures = resources;
-  }
-
-  /**
-   * Calls endScene and transitions to new scene.
-   * @param {Scene} newScene scene to be transitioned to.
-   */
-  transitionToScene(newScene) {
-    this.endScene();
-    newScene.sceneLoadFunction(this.loader, this.resources);
-  }
-
-  /**
-   * Add ticker function to scene
-   * @param {Function} ticker ticker callback function
-   * @param {string} id ticker id
-   */
-  addTickerFunction(ticker, id) {
-    this.tickerFunctions[id] = ticker;
-    this.app.ticker.add(ticker);
-  }
-
-  /**
-   * Remove ticker funtion from scene
-   * @param {string} id ticker id
-   */
-  removeTickerFunction(id) {
-    this.app.ticker.remove(this.tickerFunctions[id]);
-    delete this.tickerFunctions[id];
-  }
-
-  /**
-   * Ends the scene
-   */
-  endScene() {
-    this.viewport.removeChild(this.viewContainer);
-    for (const id in this.tickerFunctions) {
-      this.removeTickerFunction(id);
-    }
-  }
-}
+import { clamp } from "../lib/utils";
+import mouseListener from "../lib/mouse-listener";
+import Game from "../game";
+import { Scene } from "./scene";
+import { GameOverScene } from "./gameover-scene";
 
 export class GameScene extends Scene {
   HOLO_ALPHA = 0.25
-  constructor(app, viewport, mouse) {
+  constructor(app, viewport) {
     super(app, viewport);
-    this.mouse = mouse;
+    this.mouse = mouseListener();
     this.boardSize = 19;
     this.boxSize = 40;
     this.worldSize = this.boardSize * this.boxSize;
     this.cursorSprite = null;
     this.game = new Game(this.boardSize, this.boxSize);
     this.game.onFinished = (winner) => {
-      console.log("The winner is " + winner);
-      this.endScene();
+      let gameOverScene = new GameOverScene(this.app, this.viewport, winner, this.viewContainer);
+      this.transitionToScene(gameOverScene);
     }
   }
 
@@ -90,9 +34,11 @@ export class GameScene extends Scene {
         sprite.position = this.cursorSprite.position;
         this.viewContainer.addChild(sprite);
         this.game.selectSquare(row, col);
-        this.viewContainer.removeChild(this.cursorSprite);
-        this.cursorSprite = this.getXOSprite(this.game.turn);
-        this.viewContainer.addChild(this.cursorSprite);
+        if (!this.game.finished) {
+          this.viewContainer.removeChild(this.cursorSprite);
+          this.cursorSprite = this.getXOSprite(this.game.turn);
+          this.viewContainer.addChild(this.cursorSprite);
+        }
       }
     }
     this.cursorSprite = this.getXOSprite(this.game.turn);
@@ -145,7 +91,7 @@ export class GameScene extends Scene {
    * @param {number} alpha
    */
   getXOSprite(symbol, alpha = 1) {
-    let sprite = new PIXI.Sprite(this.resoures[symbol].texture);
+    let sprite = new PIXI.Sprite(this.resources[symbol].texture);
     sprite.alpha = alpha;
     sprite.width = this.boxSize;
     sprite.height = this.boxSize;
