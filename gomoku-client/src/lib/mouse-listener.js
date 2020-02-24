@@ -1,44 +1,39 @@
-function mouseListener() {
-  let mouse = {};
-  mouse.x = 0;
-  mouse.y = 0;
-  mouse.isDown = false;
-  mouse.button = -1;
-  mouse.isListening = false;
-
-  function onMove(event) {
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
+export class MouseListener {
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.isDown = false;
+    this.button = -1;
+    this.isListening = false;
   }
-
-  function onDown(event) {
-    mouse.isDown = true;
-    mouse.button = event.button;
-    if (mouse.onDown) {
-      mouse.onDown(event);
+  listen() {
+    this.isListening = true;
+    this._onMove = event => {
+      this.x = event.clientX;
+      this.y = event.clientY;
     }
-  }
-
-  function onUp(event) {
-    mouse.isDown = false;
-    mouse.button = -1;
-    if (mouse.onUp) {
-      mouse.onUp(event);
+    this._onDown = event => {
+      this.isDown = true;
+      this.button = event.button;
+      if (this.onDown) {
+        this.onDown(event);
+      }
     }
+    this._onUp = event => {
+      this.isDown = false;
+      this.button = -1;
+      if (this.onUp) {
+        this.onUp(event);
+      }
+    }
+    document.addEventListener("mousemove", this._onMove);
+    document.addEventListener("mousedown", this._onDown);
+    document.addEventListener("mouseup", this._onUp);
   }
-  mouse.listen = () => {
-    mouse.isListening = true;
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("mouseup", onUp);
+  stop() {
+    this.isListening = false;
+    document.removeEventListener("mousemove", this._onMove);
+    document.removeEventListener("mousedown", this._onDown);
+    document.removeEventListener("mouseup", this._onUp);
   }
-  mouse.stop = () => {
-    mouse.isListening = false;
-    document.removeEventListener("mousemove", onMove);
-    document.removeEventListener("mousedown", onDown);
-    document.removeEventListener("mouseup", onUp);
-  }
-  return mouse;
 }
-
-export default mouseListener;

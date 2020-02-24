@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js'
 import { clamp } from "../lib/utils";
-import mouseListener from "../lib/mouse-listener";
+import { MouseListener } from "../lib/mouse-listener";
 import Game from "../game";
 import { Scene } from "./scene";
 import { GameOverScene } from "./gameover-scene";
@@ -9,7 +9,7 @@ export class GameScene extends Scene {
   HOLO_ALPHA = 0.25
   constructor(app, viewport) {
     super(app, viewport);
-    this.mouse = mouseListener();
+    this.mouse = new MouseListener();
     this.boardSize = 19;
     this.boxSize = 40;
     this.worldSize = this.boardSize * this.boxSize;
