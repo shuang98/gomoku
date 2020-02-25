@@ -1,5 +1,6 @@
 import { Scene } from "./scene";
 import { GameScene } from "./game-scene";
+import { OnlineGameScene } from "./onlinegame-scene";
 import * as PIXI from 'pixi.js';
 import { getButton } from "../lib/utils";
 
@@ -38,7 +39,9 @@ export class MainMenuScene extends Scene {
   }
 
   startOnlineGameButton() {
-    let onClick = e => { alert("Not implemented Yet!") }
+    let onClick = e => {
+      this.transitionToScene(new OnlineGameScene(this.app, this.viewport));
+    }
     let button = getButton("Online", onClick, {
       fontFamily: 'Arial',
       fontSize: 38,
