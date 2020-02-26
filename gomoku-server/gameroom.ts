@@ -1,9 +1,9 @@
 import { Room, Client } from "colyseus";
-import { Schema, ArraySchema, type } from "@colyseus/schema";
+import { Schema, ArraySchema, type, MapSchema } from "@colyseus/schema";
 
-const EMPTY = 0;
-const X = 1;
-const O = 2;
+const EMPTY = '0';
+const X = 'x';
+const O = 'o';
 
 class Player extends Schema {
 
@@ -14,23 +14,23 @@ class Player extends Schema {
 
   @type("string")
   playerSessionID: string;
+
+  @type("string")
+  playerSymbol: string;
 }
 
 class GameState extends Schema {
-  @type(["number"])
-  board: ArraySchema<number>;
+  @type(["string"])
+  board: ArraySchema<string>;
 
-  @type(Player)
-  playerX: Player;
+  @type({map: Player})
+  players: MapSchema<Player> = new MapSchema<Player>();
 
-  @type(Player)
-  playerO: Player;
+  @type("boolean")
+  ready = false;
 
-  @type("number")
-  cursorIndex: number;
-
-  @type("number")
-  turn: number;
+  @type("string")
+  turn: string;
 
 }
 
@@ -39,18 +39,19 @@ export class GameRoom extends Room<GameState> {
   onCreate(options: any) {
     this.setState(new GameState());
     let size = options.boardSize * options.boardSize;
-    this.state.board = new ArraySchema<number>(size);
-    this.state.board.fill(EMPTY);
+    this.state.board = new ArraySchema<string>(...new Array<string>(size).fill(EMPTY));
     this.maxClients = 2;
   }
 
   onJoin(client: Client, options: any) {
     let newPlayer = new Player(client.sessionId);
-    if (this.state.playerX) {
-      this.state.playerO = newPlayer
+    if (this.clients.length == 1) {
+      newPlayer.playerSymbol = X;
     } else {
-      this.state.playerX = newPlayer
+      newPlayer.playerSymbol = O;
+      this.state.ready = true;
     }
+    this.state.players[client.sessionId] = newPlayer;
   }
 
   onMessage(client: Client, message: any) {
