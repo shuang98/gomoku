@@ -55,6 +55,7 @@ export class GameRoom extends Room<GameState> {
   }
 
   onMessage(client: Client, message: any) {
+    this.broadcast(message, {except: client});
   }
 
   onLeave(client: Client, consented: boolean) {

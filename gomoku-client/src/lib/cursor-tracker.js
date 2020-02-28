@@ -1,0 +1,131 @@
+import { Scene } from "../scenes/scene";
+import { OnlineGameScene } from "../scenes/onlinegame-scene";
+import * as PIXI from 'pixi.js'
+import { MouseListener } from "./mouse-listener";
+import { getXOSprite, clamp } from "./utils";
+
+const CURSOR_ALPHA = 0.25;
+const TICKER_ID = "cursor_ticker";
+
+export class CursorTracker {
+  /**
+   * 
+   * @param {Scene} scene scene
+   * @param {MouseListener} mouse an actively listening MouseListener
+   */
+  constructor(scene, mouse) {
+    this.scene = scene;
+    this.mouse = mouse;
+    this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
+    this.cursorSymbol = this.scene.game.turn;
+  }
+
+  get x() {
+    return this.sprite.x;
+  }
+
+  get y() {
+    return this.sprite.y;
+  }
+
+  get row() {
+    return Math.floor(this.sprite.y / this.scene.BOX_SIZE)
+  }
+
+  get col() {
+    return Math.floor(this.sprite.x / this.scene.BOX_SIZE)
+  }
+
+  get position() {
+    return new PIXI.Point(this.x, this.y);
+  }
+
+  start() {
+    this.scene.viewContainer.addChild(this.sprite);
+    this.scene.addTickerFunction(() => {
+      this.updateSpriteToClientMouse();
+    }, TICKER_ID);
+  }
+
+  stop() {
+    this.scene.viewContainer.removeChild(this.sprite);
+    this.scene.removeTickerFunction(TICKER_ID);
+  }
+
+  updateSpriteSymbol() {
+    if (this.scene.game.turn != this.cursorSymbol) {
+      this.cursorSymbol = this.scene.game.turn;
+      this.scene.viewContainer.removeChild(this.sprite);
+      this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources);
+      this.scene.viewContainer.addChild(this.sprite);
+    }
+  }
+
+  updateSpriteToClientMouse() {
+    this.updateSpriteSymbol();
+    let cursor = this.scene.viewport.toWorld(new PIXI.Point(this.mouse.x, this.mouse.y));
+    cursor.x = Math.floor(cursor.x / this.scene.BOX_SIZE) * this.scene.BOX_SIZE;
+    cursor.y = Math.floor(cursor.y / this.scene.BOX_SIZE) * this.scene.BOX_SIZE;
+    cursor.x = clamp(cursor.x, 0, this.scene.worldSize - this.scene.BOX_SIZE);
+    cursor.y = clamp(cursor.y, 0, this.scene.worldSize - this.scene.BOX_SIZE);
+    let col = Math.floor(cursor.x / this.scene.BOX_SIZE);
+    let row = Math.floor(cursor.y / this.scene.BOX_SIZE);
+    this.sprite.position = cursor;
+    if (this.scene.game.board[row][col] === this.scene.game.EMPTY) {
+      this.sprite.alpha = CURSOR_ALPHA;
+    } else {
+      this.sprite.alpha = 0;
+    }
+  }
+}
+
+const UPDATE_CURSOR = "UPDATE_CURSOR";
+const ONLINE_TICKER_ID = "online_cursor_ticker";
+
+
+export class OnlineCursorTracker extends CursorTracker {
+
+  /**
+   * 
+   * @param {OnlineGameScene} scene An OnlineGameScene
+   * @param {MouseListener} mouse an actively listening MouseListener
+   */
+  constructor(scene, mouse) {
+    super(scene, mouse);
+  }
+
+  start() {
+    this.scene.viewContainer.addChild(this.sprite);
+    const ticker = () => {
+      if (this.scene.isPlayerTurn()) {
+        this.updateSpriteToClientMouse();
+      }
+    }
+    this.scene.addTickerFunction(ticker, ONLINE_TICKER_ID);
+    this.scene.room.onMessage(({ action, payload }) => {
+      console.log(action, payload);
+      if (action == UPDATE_CURSOR) {
+        this.updateCursorToOpponentMouse(payload.row, payload.col);
+      }
+    });
+  }
+
+  updateCursorToOpponentMouse(row, col) {
+    this.updateSpriteSymbol();
+    let pos = new PIXI.Point(col * this.scene.BOX_SIZE, row * this.scene.BOX_SIZE);
+    this.sprite.position = pos;
+  }
+
+  updateSpriteToClientMouse() {
+    const oldRow = this.row;
+    const oldCol = this.col;
+    super.updateSpriteToClientMouse();
+    if (this.col != oldCol || this.row != oldRow) {
+      this.scene.room.send({
+        action: UPDATE_CURSOR,
+        payload: { row: this.row, col: this.col }
+      });
+    }
+
+  }
+}

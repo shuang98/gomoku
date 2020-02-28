@@ -1,4 +1,4 @@
-class Game {
+export class Game {
   X = 'x';
   O = 'o';
   EMPTY = '0';
@@ -77,5 +77,3 @@ class Game {
     return false;
   }
 }
-
-export default Game;
