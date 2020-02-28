@@ -1,9 +1,12 @@
 import { Scene } from "./scene";
 import { MouseListener } from "../lib/mouse-listener";
-import { getGrid } from "../lib/utils";
+import { Game } from "../game";
+import { getGrid, getXOSprite } from "../lib/utils";
 import { Room } from "colyseus.js";
 import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
+
+const SELECT_SQUARE = 'SELECT_SQUARE';
 
 export class OnlineGameScene extends Scene {
   HOLO_ALPHA = 0.25
@@ -33,10 +36,29 @@ export class OnlineGameScene extends Scene {
     this.cursorTracker.start();
     this.mouse.onDown = (event) => {
       event.preventDefault();
+      if (!this.isPlayerTurn()) { return; }
       let col = this.cursorTracker.col
       let row = this.cursorTracker.row
-      if (event.button == 0 && this.game.board[row][col] == this.game.EMPTY) {}
+      if (event.button == 0 && this.game.board[row][col] == this.game.EMPTY) {
+        this.selectSquare(row, col);
+        this.room.send({
+          action: SELECT_SQUARE,
+          payload: { row, col }
+        });
+      }
     }
+    this.room.onMessage(({ action, payload }) => {
+      if (action == SELECT_SQUARE) {
+        this.selectSquare(payload.row, payload.col)
+      }
+    })
+  }
+
+  selectSquare(row, col) {
+    let sprite = getXOSprite(this.game.turn, this.BOX_SIZE, this.resources);
+    sprite.position = this.cursorTracker.position;
+    this.viewContainer.addChild(sprite);
+    this.game.selectSquare(row, col);
   }
 
   isPlayerTurn() {

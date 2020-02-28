@@ -56,7 +56,7 @@ export class CursorTracker {
     if (this.scene.game.turn != this.cursorSymbol) {
       this.cursorSymbol = this.scene.game.turn;
       this.scene.viewContainer.removeChild(this.sprite);
-      this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources);
+      this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
       this.scene.viewContainer.addChild(this.sprite);
     }
   }
@@ -103,7 +103,6 @@ export class OnlineCursorTracker extends CursorTracker {
     }
     this.scene.addTickerFunction(ticker, ONLINE_TICKER_ID);
     this.scene.room.onMessage(({ action, payload }) => {
-      console.log(action, payload);
       if (action == UPDATE_CURSOR) {
         this.updateCursorToOpponentMouse(payload.row, payload.col);
       }

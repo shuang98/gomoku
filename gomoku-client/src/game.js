@@ -46,7 +46,7 @@ export class Game {
     i = row - 1;
     while (i >= 0 && board[i][j] === board[row][col])
       i--, count++;
-    if (count == 4)
+    if (count >= 4)
       return true;
     //horizontal
     i = row, j = col + 1, count = 0;
@@ -55,7 +55,7 @@ export class Game {
     j = col - 1;
     while (j >= 0 && board[i][j] === board[row][col])
       j--, count++;
-    if (count == 4)
+    if (count >= 4)
       return true;
     //diagonal
     i = row + 1, j = col + 1, count = 0;
@@ -64,7 +64,7 @@ export class Game {
     i = row - 1, j = col - 1;
     while (i >= 0 && j >= 0 && board[i][j] === board[row][col])
       i--, j--, count++;
-    if (count == 4)
+    if (count >= 4)
       return true;
     i = row - 1, j = col + 1, count = 0;
     while (i >= 0 && j < this.boardSize && board[i][j] === board[row][col])
@@ -72,7 +72,7 @@ export class Game {
     i = row + 1, j = col - 1;
     while (i < this.boardSize && j >= 0 && board[i][j] === board[row][col])
       i++, j--, count++;
-    if (count == 4)
+    if (count >= 4)
       return true;
     return false;
   }
