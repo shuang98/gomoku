@@ -1,12 +1,12 @@
 import { Scene } from "./scene";
 import { MouseListener } from "../lib/mouse-listener";
-import { Game } from "../game";
+import { OnlineGame } from "../game";
 import { getGrid, getXOSprite } from "../lib/utils";
 import { Room } from "colyseus.js";
 import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
-
-const SELECT_SQUARE = 'SELECT_SQUARE';
+import { GameOverScene } from "./gameover-scene";
+import { MSG_TYPES } from "../lib/constants";
 
 export class OnlineGameScene extends Scene {
   HOLO_ALPHA = 0.25
@@ -23,7 +23,7 @@ export class OnlineGameScene extends Scene {
     this.room = room;
     this.mouse = new MouseListener();
     this.worldSize = this.BOX_SIZE * this.BOARD_SIZE;
-    this.game = new Game(this.BOARD_SIZE, this.BOX_SIZE);
+    this.game = new OnlineGame(this.BOARD_SIZE, this.room);
     this.playerSymbol = this.game.EMPTY;
   }
 
@@ -39,26 +39,31 @@ export class OnlineGameScene extends Scene {
       if (!this.isPlayerTurn()) { return; }
       let col = this.cursorTracker.col
       let row = this.cursorTracker.row
-      if (event.button == 0 && this.game.board[row][col] == this.game.EMPTY) {
-        this.selectSquare(row, col);
-        this.room.send({
-          action: SELECT_SQUARE,
-          payload: { row, col }
-        });
+      if (event.button == 0 && this.game.getBoardSquare(row, col) == this.game.EMPTY) {
+        this.renderSymbolOnSquare(row, col, this.game.turn);
+        this.game.selectSquare(row, col);
       }
     }
-    this.room.onMessage(({ action, payload }) => {
-      if (action == SELECT_SQUARE) {
-        this.selectSquare(payload.row, payload.col)
+    this.room.state.board.onChange = (symbol, index) => {
+      let row = Math.floor(index / this.BOARD_SIZE);
+      let col = index % this.BOARD_SIZE;
+      this.renderSymbolOnSquare(row, col, symbol);
+    }
+    this.room.state.winner.onChange = (changes) => {
+      let winner = {}
+      for (const { field, value }
+        of changes) {
+        winner[field] = value;
       }
-    })
+      let gameOverScene = new GameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer);
+      this.transitionToScene(gameOverScene);
+    }
   }
 
-  selectSquare(row, col) {
-    let sprite = getXOSprite(this.game.turn, this.BOX_SIZE, this.resources);
-    sprite.position = this.cursorTracker.position;
+  renderSymbolOnSquare(row, col, symbol) {
+    let sprite = getXOSprite(symbol, this.BOX_SIZE, this.resources);
+    sprite.position = new PIXI.Point(col * this.BOX_SIZE, row * this.BOX_SIZE);
     this.viewContainer.addChild(sprite);
-    this.game.selectSquare(row, col);
   }
 
   isPlayerTurn() {

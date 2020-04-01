@@ -71,7 +71,7 @@ export class CursorTracker {
     let col = Math.floor(cursor.x / this.scene.BOX_SIZE);
     let row = Math.floor(cursor.y / this.scene.BOX_SIZE);
     this.sprite.position = cursor;
-    if (this.scene.game.board[row][col] === this.scene.game.EMPTY) {
+    if (this.scene.game.getBoardSquare(row, col) === this.scene.game.EMPTY) {
       this.sprite.alpha = CURSOR_ALPHA;
     } else {
       this.sprite.alpha = 0;
@@ -102,11 +102,14 @@ export class OnlineCursorTracker extends CursorTracker {
       }
     }
     this.scene.addTickerFunction(ticker, ONLINE_TICKER_ID);
-    this.scene.room.onMessage(({ action, payload }) => {
-      if (action == UPDATE_CURSOR) {
-        this.updateCursorToOpponentMouse(payload.row, payload.col);
+    this.scene.room.state.cursor.onChange = (changes) => {
+      let cursor = { row: this.row, col: this.col };
+      for (const { field, value }
+        of changes) {
+        cursor[field] = value;
       }
-    });
+      this.updateCursorToOpponentMouse(cursor.row, cursor.col);
+    };
   }
 
   updateCursorToOpponentMouse(row, col) {

@@ -27,7 +27,7 @@ export class OnlineQueueScene extends Scene {
   joinGame() {
     this.client.joinOrCreate("game").then(room => {
       room.onStateChange(state => {
-        if (state.ready) {
+        if (state.playing) {
           room.removeAllListeners();
           let game = new OnlineGameScene(this.app, this.viewport, room)
           this.transitionToScene(game);

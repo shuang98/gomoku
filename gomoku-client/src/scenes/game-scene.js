@@ -14,7 +14,7 @@ export class GameScene extends Scene {
     super(app, viewport);
     this.mouse = new MouseListener();
     this.worldSize = this.BOARD_SIZE * this.BOX_SIZE;
-    this.game = new Game(this.BOARD_SIZE, this.BOX_SIZE);
+    this.game = new Game(this.BOARD_SIZE);
     this.game.onFinished = (winner) => {
       let gameOverScene = new GameOverScene(this.app, this.viewport, winner, this.viewContainer);
       this.transitionToScene(gameOverScene);
@@ -31,7 +31,7 @@ export class GameScene extends Scene {
       event.preventDefault();
       const row = this.cursorTracker.row;
       const col = this.cursorTracker.col;
-      if (event.button == 0 && this.game.board[row][col] == this.game.EMPTY) {
+      if (event.button == 0 && this.game.getBoardSquare(row, col) == this.game.EMPTY) {
         let sprite = getXOSprite(this.game.turn, this.BOX_SIZE, resources);
         sprite.position = this.cursorTracker.position;
         this.viewContainer.addChild(sprite);

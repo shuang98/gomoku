@@ -3,6 +3,8 @@ import { GameScene } from './game-scene';
 import { getButton } from "../lib/utils";
 import * as PIXI from 'pixi.js'
 import { MainMenuScene } from "./mainmenu-scene";
+import { OnlineGameScene } from "./onlinegame-scene";
+import { MSG_TYPES } from "../lib/constants";
 
 export class GameOverScene extends Scene {
   constructor(app, viewport, winner, gameSceneViewContainer) {
@@ -61,6 +63,26 @@ export class GameOverScene extends Scene {
     return button;
 
   }
+}
 
-
+export class OnlineGameOverScene extends GameOverScene {
+  constructor(app, viewport, winner, gameSceneViewContainer, room) {
+    super(app, viewport, winner, gameSceneViewContainer);
+    this.room = room;
+  }
+  rematchButton() {
+    let onClick = (e) => {
+      this.room.send({
+        action: MSG_TYPES.REQUEST_REMATCH,
+      });
+    }
+    let button = getButton("rematch?", onClick, {
+      fontFamily: 'Arial',
+      fontSize: 38,
+    });
+    button.anchor.set(0.5);
+    button.x = this.viewport.worldWidth / 2;
+    button.y = this.viewport.worldHeight / 2;
+    return button;
+  }
 }

@@ -1,17 +1,22 @@
+import { Room } from "colyseus.js";
+import { MSG_TYPES } from "./lib/constants";
+
 export class Game {
   X = 'x';
   O = 'o';
   EMPTY = '0';
-  constructor(boardSize, boxSize) {
+  constructor(boardSize) {
     this.boardSize = boardSize;
-    this.boxSize = boxSize;
-    this.worldSize = this.boardSize * this.boxSize;
     this.board = new Array(this.boardSize).fill(0).map(
       () => new Array(this.boardSize).fill(this.EMPTY)
     );
     this.turn = this.X;
     this.onFinished = (winner) => {};
     this.finished = false;
+  }
+
+  getBoardSquare(row, col) {
+    return this.board[row][col];
   }
 
   /**
@@ -75,5 +80,35 @@ export class Game {
     if (count >= 4)
       return true;
     return false;
+  }
+}
+
+export class OnlineGame {
+  X = 'x';
+  O = 'o';
+  EMPTY = '0';
+  /**
+   * 
+   * @param {Room} room 
+   */
+  constructor(boardSize, room) {
+    this.room = room;
+    this.boardSize = boardSize;
+  }
+
+  get turn() {
+    return this.room.state.turn;
+  }
+
+  getBoardSquare(row, col) {
+    let index = row * this.boardSize + col
+    return this.room.state.board[index];
+  }
+
+  selectSquare(row, col) {
+    this.room.send({
+      action: MSG_TYPES.SELECT_SQUARE,
+      payload: { row, col }
+    });
   }
 }
