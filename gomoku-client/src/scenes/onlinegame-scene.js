@@ -6,12 +6,9 @@ import { Room } from "colyseus.js";
 import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
 import { GameOverScene } from "./gameover-scene";
-import { MSG_TYPES } from "../lib/constants";
+import { BOX_SIZE, BOARD_SIZE } from "../lib/constants";
 
 export class OnlineGameScene extends Scene {
-  HOLO_ALPHA = 0.25
-  BOARD_SIZE = 19;
-  BOX_SIZE = 40;
   /**
    * 
    * @param {PIXI.Application} app 
@@ -22,14 +19,14 @@ export class OnlineGameScene extends Scene {
     super(app, viewport);
     this.room = room;
     this.mouse = new MouseListener();
-    this.worldSize = this.BOX_SIZE * this.BOARD_SIZE;
-    this.game = new OnlineGame(this.BOARD_SIZE, this.room);
+    this.worldSize = BOX_SIZE * BOARD_SIZE;
+    this.game = new OnlineGame(BOARD_SIZE, this.room);
     this.playerSymbol = this.game.EMPTY;
   }
 
   sceneLoadFunction(loader, resources) {
     super.sceneLoadFunction(loader, resources);
-    this.viewContainer.addChild(getGrid(this.BOARD_SIZE, this.BOX_SIZE));
+    this.viewContainer.addChild(getGrid(BOARD_SIZE, BOX_SIZE));
     this.playerSymbol = this.room.state.players[this.room.sessionId].playerSymbol;
     this.mouse.listen();
     this.cursorTracker = new OnlineCursorTracker(this, this.mouse);
@@ -45,8 +42,8 @@ export class OnlineGameScene extends Scene {
       }
     }
     this.room.state.board.onChange = (symbol, index) => {
-      let row = Math.floor(index / this.BOARD_SIZE);
-      let col = index % this.BOARD_SIZE;
+      let row = Math.floor(index / BOARD_SIZE);
+      let col = index % BOARD_SIZE;
       this.renderSymbolOnSquare(row, col, symbol);
     }
     this.room.state.winner.onChange = (changes) => {
@@ -61,8 +58,8 @@ export class OnlineGameScene extends Scene {
   }
 
   renderSymbolOnSquare(row, col, symbol) {
-    let sprite = getXOSprite(symbol, this.BOX_SIZE, this.resources);
-    sprite.position = new PIXI.Point(col * this.BOX_SIZE, row * this.BOX_SIZE);
+    let sprite = getXOSprite(symbol, BOX_SIZE, this.resources);
+    sprite.position = new PIXI.Point(col * BOX_SIZE, row * BOX_SIZE);
     this.viewContainer.addChild(sprite);
   }
 

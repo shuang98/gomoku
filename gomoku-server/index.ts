@@ -18,7 +18,7 @@ const gameServer = new Server({
 });
 
 // register your room handlers
-gameServer.define('game', GameRoom, {boardSize: 19});
+gameServer.define('game', GameRoom, {boardSize: 20});
 
 /**
  * Register @colyseus/social routes

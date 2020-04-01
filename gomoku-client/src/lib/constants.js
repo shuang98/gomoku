@@ -3,3 +3,6 @@ export const MSG_TYPES = {
   UPDATE_CURSOR: "UPDATE_CURSOR",
   REQUEST_REMATCH: "REQUEST_REMATCH",
 }
+
+export const BOX_SIZE = 30;
+export const BOARD_SIZE = 20;

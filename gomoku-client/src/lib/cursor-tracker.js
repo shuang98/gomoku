@@ -3,6 +3,7 @@ import { OnlineGameScene } from "../scenes/onlinegame-scene";
 import * as PIXI from 'pixi.js'
 import { MouseListener } from "./mouse-listener";
 import { getXOSprite, clamp } from "./utils";
+import { BOX_SIZE } from "./constants";
 
 const CURSOR_ALPHA = 0.25;
 const TICKER_ID = "cursor_ticker";
@@ -16,7 +17,7 @@ export class CursorTracker {
   constructor(scene, mouse) {
     this.scene = scene;
     this.mouse = mouse;
-    this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
+    this.sprite = getXOSprite(this.scene.game.turn, BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
     this.cursorSymbol = this.scene.game.turn;
   }
 
@@ -29,11 +30,11 @@ export class CursorTracker {
   }
 
   get row() {
-    return Math.floor(this.sprite.y / this.scene.BOX_SIZE)
+    return Math.floor(this.sprite.y / BOX_SIZE)
   }
 
   get col() {
-    return Math.floor(this.sprite.x / this.scene.BOX_SIZE)
+    return Math.floor(this.sprite.x / BOX_SIZE)
   }
 
   get position() {
@@ -56,7 +57,7 @@ export class CursorTracker {
     if (this.scene.game.turn != this.cursorSymbol) {
       this.cursorSymbol = this.scene.game.turn;
       this.scene.viewContainer.removeChild(this.sprite);
-      this.sprite = getXOSprite(this.scene.game.turn, this.scene.BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
+      this.sprite = getXOSprite(this.scene.game.turn, BOX_SIZE, this.scene.resources, CURSOR_ALPHA);
       this.scene.viewContainer.addChild(this.sprite);
     }
   }
@@ -64,12 +65,12 @@ export class CursorTracker {
   updateSpriteToClientMouse() {
     this.updateSpriteSymbol();
     let cursor = this.scene.viewport.toWorld(new PIXI.Point(this.mouse.x, this.mouse.y));
-    cursor.x = Math.floor(cursor.x / this.scene.BOX_SIZE) * this.scene.BOX_SIZE;
-    cursor.y = Math.floor(cursor.y / this.scene.BOX_SIZE) * this.scene.BOX_SIZE;
-    cursor.x = clamp(cursor.x, 0, this.scene.worldSize - this.scene.BOX_SIZE);
-    cursor.y = clamp(cursor.y, 0, this.scene.worldSize - this.scene.BOX_SIZE);
-    let col = Math.floor(cursor.x / this.scene.BOX_SIZE);
-    let row = Math.floor(cursor.y / this.scene.BOX_SIZE);
+    cursor.x = Math.floor(cursor.x / BOX_SIZE) * BOX_SIZE;
+    cursor.y = Math.floor(cursor.y / BOX_SIZE) * BOX_SIZE;
+    cursor.x = clamp(cursor.x, 0, this.scene.worldSize - BOX_SIZE);
+    cursor.y = clamp(cursor.y, 0, this.scene.worldSize - BOX_SIZE);
+    let col = Math.floor(cursor.x / BOX_SIZE);
+    let row = Math.floor(cursor.y / BOX_SIZE);
     this.sprite.position = cursor;
     if (this.scene.game.getBoardSquare(row, col) === this.scene.game.EMPTY) {
       this.sprite.alpha = CURSOR_ALPHA;
@@ -114,7 +115,7 @@ export class OnlineCursorTracker extends CursorTracker {
 
   updateCursorToOpponentMouse(row, col) {
     this.updateSpriteSymbol();
-    let pos = new PIXI.Point(col * this.scene.BOX_SIZE, row * this.scene.BOX_SIZE);
+    let pos = new PIXI.Point(col * BOX_SIZE, row * BOX_SIZE);
     this.sprite.position = pos;
   }
 

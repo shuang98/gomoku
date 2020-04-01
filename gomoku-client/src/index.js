@@ -3,9 +3,8 @@ import { Viewport } from 'pixi-viewport';
 import oImage from '../images/o.png';
 import xImage from '../images/x.png'
 import { MainMenuScene } from './scenes/mainmenu-scene';
+import { BOX_SIZE, BOARD_SIZE } from './lib/constants';
 
-let BOARD_SIZE = 19;
-let BOX_SIZE = 40;
 let WORLD_SIZE = BOARD_SIZE * BOX_SIZE;
 const app = new PIXI.Application();
 let viewport = new Viewport({

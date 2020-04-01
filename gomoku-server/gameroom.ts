@@ -172,7 +172,7 @@ export class GameRoom extends Room<GameState> {
       default:
         break;
     }
-    console.log(message);
+    // console.log(message);
   }
 
   onLeave(client: Client, consented: boolean) {
