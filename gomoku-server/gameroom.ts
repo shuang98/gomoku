@@ -80,6 +80,49 @@ class GameState extends Schema {
     this.board[index] = symbol;
   }
 
+  isFiveInARow(row:number, col:number) {
+    if (this.getBoardSquare(row, col) === EMPTY) {
+      return false;
+    }
+    let i, j, count;
+    //vertical
+    i = row + 1, j = col, count = 0;
+    while (i < this.boardSize && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      i++, count++;
+    i = row - 1;
+    while (i >= 0 && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      i--, count++;
+    if (count >= 4)
+      return true;
+    //horizontal
+    i = row, j = col + 1, count = 0;
+    while (j < this.boardSize && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      j++, count++;
+    j = col - 1;
+    while (j >= 0 && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      j--, count++;
+    if (count >= 4)
+      return true;
+    //diagonal
+    i = row + 1, j = col + 1, count = 0;
+    while (i < this.boardSize && j < this.boardSize && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      j++, i++, count++;
+    i = row - 1, j = col - 1;
+    while (i >= 0 && j >= 0 && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      i--, j--, count++;
+    if (count >= 4)
+      return true;
+    i = row - 1, j = col + 1, count = 0;
+    while (i >= 0 && j < this.boardSize && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      j++, i--, count++;
+    i = row + 1, j = col - 1;
+    while (i < this.boardSize && j >= 0 && this.getBoardSquare(i, j) === this.getBoardSquare(row, col))
+      i++, j--, count++;
+    if (count >= 4)
+      return true;
+    return false;
+  }
+
 }
 
 export class GameRoom extends Room<GameState> {
@@ -110,8 +153,9 @@ export class GameRoom extends Room<GameState> {
       return;
     }
     this.state.setBoardSquare(row, col, this.state.turn);
-    if (this.isFiveInARow(row, col)) {
+    if (this.state.isFiveInARow(row, col)) {
       this.state.winner = this.state.players[client.sessionId];
+      this.state.playing = false;
       return;
     }
     this.state.turn = this.state.turn == X ? O : X;
@@ -136,49 +180,4 @@ export class GameRoom extends Room<GameState> {
 
   onDispose() {
   }
-
-  isFiveInARow(row: number, col: number) {
-    let board = this.state.board;
-    if (board[row * this.boardSize + col] === EMPTY) {
-      return false;
-    }
-    let i, j, count;
-    //vertical
-    i = row + 1, j = col, count = 0;
-    while (i < this.boardSize && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      i++, count++;
-    i = row - 1;
-    while (i >= 0 && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      i--, count++;
-    if (count >= 4)
-      return true;
-    //horizontal
-    i = row, j = col + 1, count = 0;
-    while (j < this.boardSize && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      j++, count++;
-    j = col - 1;
-    while (j >= 0 && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      j--, count++;
-    if (count >= 4)
-      return true;
-    //diagonal
-    i = row + 1, j = col + 1, count = 0;
-    while (i < this.boardSize && j < this.boardSize && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      j++, i++, count++;
-    i = row - 1, j = col - 1;
-    while (i >= 0 && j >= 0 && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      i--, j--, count++;
-    if (count >= 4)
-      return true;
-    i = row - 1, j = col + 1, count = 0;
-    while (i >= 0 && j < this.boardSize && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      j++, i--, count++;
-    i = row + 1, j = col - 1;
-    while (i < this.boardSize && j >= 0 && board[i * this.boardSize + j] === board[row * this.boardSize + col])
-      i++, j--, count++;
-    if (count >= 4)
-      return true;
-    return false;
-  }
-
 }
