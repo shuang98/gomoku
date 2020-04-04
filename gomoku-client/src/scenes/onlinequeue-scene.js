@@ -1,7 +1,7 @@
 import { Scene } from "./scene";
 import { Client } from "colyseus.js";
 import * as PIXI from 'pixi.js';
-import { OnlineGameScene } from "./onlinegame-scene";
+import { OnlineLobbyScene } from "./onlinelobby-scene";
 
 export class OnlineQueueScene extends Scene {
   SERVER_CONNECTION = "ws://localhost:2567";
@@ -14,7 +14,7 @@ export class OnlineQueueScene extends Scene {
   }
 
   waitingMessage() {
-    let text = new PIXI.Text("waiting to join game...", {
+    let text = new PIXI.Text("waiting to join lobby...", {
       fontFamily: 'Arial',
       fontSize: 50,
     });
@@ -27,11 +27,9 @@ export class OnlineQueueScene extends Scene {
   joinGame() {
     this.client.joinOrCreate("game").then(room => {
       room.onStateChange(state => {
-        if (state.playing) {
-          room.removeAllListeners();
-          let game = new OnlineGameScene(this.app, this.viewport, room)
-          this.transitionToScene(game);
-        }
+        room.removeAllListeners();
+        let lobby = new OnlineLobbyScene(this.app, this.viewport, room);
+        this.transitionToScene(lobby);
       })
     });
   }

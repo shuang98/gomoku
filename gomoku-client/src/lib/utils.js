@@ -17,6 +17,32 @@ export function getButton(text, onClick, options) {
   return button;
 }
 
+export function updatePlayerList(container, resources, players, clientPlayerSymbol, position = new PIXI.Point()) {
+  container.removeChildren();
+  container.position = position
+  let graphics = new PIXI.Graphics();
+  graphics.lineStyle(1, 0xc4c4c4);
+  let index = 0;
+  for (const symbol in players) {
+    const player = players[symbol];
+    let row = new PIXI.Container();
+    let name = clientPlayerSymbol == player.playerSymbol ? "You" : "Opponent";
+    let text = new PIXI.Text(name, {
+      fill: "#c4c4c4",
+      padding: 2,
+    });
+    text.x += text.height
+    let symbolSprite = getXOSprite(symbol, text.height, resources, 0.25);
+    row.addChild(symbolSprite);
+    row.addChild(text);
+    row.y = container.y + (text.height + 10) * index;
+    container.addChild(row);
+    index++;
+  }
+  graphics.drawRect(container.x, container.y, container.width, container.height);
+  container.addChildAt(graphics, 0);
+}
+
 /**
  * @returns {PIXI.Graphics} Graphics object for the gomoku grid.
  */

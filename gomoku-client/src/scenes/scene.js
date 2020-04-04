@@ -1,6 +1,8 @@
 import * as PIXI from 'pixi.js'
 
 export class Scene {
+  isInGame = false;
+  isOnline = false;
   constructor(app, viewport) {
     this.app = app;
     this.viewport = viewport;
@@ -15,6 +17,7 @@ export class Scene {
    * @param {*} resources 
    */
   sceneLoadFunction(loader, resources) {
+    this.app.setScene(this);
     this.viewport.addChild(this.viewContainer);
     this.loader = loader;
     this.resources = resources;

@@ -8,6 +8,7 @@ import { CursorTracker } from "../lib/cursor-tracker";
 import { BOX_SIZE, BOARD_SIZE } from '../lib/constants';
 
 export class GameScene extends Scene {
+  isInGame = true;
   constructor(app, viewport) {
     super(app, viewport);
     this.mouse = new MouseListener();

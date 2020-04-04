@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: './src/index.js',
@@ -14,22 +15,24 @@ module.exports = {
         ],
       },
       {
-        test: /\.js$/,
+        test: /\.html$/,
+        use: [{
+          loader: "html-loader"
+        }]
+      },
+      {
+        test: /\.(js|jsx)$/,
         exclude: /(node_modules)/,
         use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              '@babel/preset-env',
-              {
-                plugins: [
-                  '@babel/plugin-proposal-class-properties'
-                ]
-              }
-            ]
-          },
+          loader: "babel-loader"
         }
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebPackPlugin({
+      template: "./src/index.html",
+      filename: "./index.html"
+    })
+  ]
 };

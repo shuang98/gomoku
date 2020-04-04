@@ -5,10 +5,12 @@ import { getGrid, getXOSprite } from "../lib/utils";
 import { Room } from "colyseus.js";
 import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
-import { GameOverScene } from "./gameover-scene";
+import { OnlineGameOverScene } from "./gameover-scene";
 import { BOX_SIZE, BOARD_SIZE } from "../lib/constants";
 
 export class OnlineGameScene extends Scene {
+  isOnline = true;
+  isInGame = true;
   /**
    * 
    * @param {PIXI.Application} app 
@@ -52,7 +54,7 @@ export class OnlineGameScene extends Scene {
         of changes) {
         winner[field] = value;
       }
-      let gameOverScene = new GameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer);
+      let gameOverScene = new OnlineGameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer, this.room);
       this.transitionToScene(gameOverScene);
     }
   }

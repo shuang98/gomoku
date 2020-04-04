@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js'
 import { MainMenuScene } from "./mainmenu-scene";
 import { OnlineGameScene } from "./onlinegame-scene";
 import { MSG_TYPES } from "../lib/constants";
+import { OnlineLobbyScene } from "./onlinelobby-scene";
 
 export class GameOverScene extends Scene {
   constructor(app, viewport, winner, gameSceneViewContainer) {
@@ -72,17 +73,32 @@ export class OnlineGameOverScene extends GameOverScene {
   }
   rematchButton() {
     let onClick = (e) => {
-      this.room.send({
-        action: MSG_TYPES.REQUEST_REMATCH,
-      });
+      let lobby = new OnlineLobbyScene(this.app, this.viewport, this.room);
+      this.transitionToScene(lobby);
     }
-    let button = getButton("rematch?", onClick, {
+    let button = getButton("back to lobby", onClick, {
       fontFamily: 'Arial',
       fontSize: 38,
     });
     button.anchor.set(0.5);
     button.x = this.viewport.worldWidth / 2;
     button.y = this.viewport.worldHeight / 2;
+    return button;
+  }
+
+  mainMenuButton() {
+    let onClick = e => {
+      this.room.leave();
+      let mainMenuScene = new MainMenuScene(this.app, this.viewport);
+      this.transitionToScene(mainMenuScene);
+    }
+    let button = getButton("back to menu", onClick, {
+      fontFamily: 'Arial',
+      fontSize: 38,
+    });
+    button.anchor.set(0.5);
+    button.x = this.viewport.worldWidth / 2;
+    button.y = this.viewport.worldHeight / 2 + 100;
     return button;
   }
 }
