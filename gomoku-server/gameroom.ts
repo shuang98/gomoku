@@ -18,6 +18,9 @@ class Player extends Schema {
 
   @type("string")
   playerSymbol: string;
+
+  @type("boolean")
+  isLobbyLeader: boolean = false;
 }
 
 class Cursor extends Schema {
@@ -126,11 +129,8 @@ class GameState extends Schema {
 }
 
 export class GameRoom extends Room<GameState> {
-  boardSize: number;
-
   onCreate(options: any) {
     this.setState(new GameState(options.boardSize));
-    this.boardSize = options.boardSize;
     this.maxClients = 2;
     this.state.turn = X;
   }
@@ -138,10 +138,10 @@ export class GameRoom extends Room<GameState> {
   onJoin(client: Client, options: any) {
     let newPlayer = new Player(client.sessionId);
     if (this.clients.length == 1) {
+      newPlayer.isLobbyLeader = true;
       newPlayer.playerSymbol = X;
     } else {
-      newPlayer.playerSymbol = O;
-      this.state.playing = true;
+      newPlayer.playerSymbol = this.state.players[this.clients[0].sessionId].playerSymbol == X ? O : X
     }
     this.state.players[client.sessionId] = newPlayer;
   }
@@ -169,6 +169,8 @@ export class GameRoom extends Room<GameState> {
         break;
       case MSG_TYPES.UPDATE_CURSOR:
         this.state.updateCursor(message.payload);
+      case MSG_TYPES.START_MATCH:
+        if (this.clients.length == 2) {this.state.playing = true;}
       default:
         break;
     }
@@ -176,6 +178,14 @@ export class GameRoom extends Room<GameState> {
   }
 
   onLeave(client: Client, consented: boolean) {
+    const wasLobbyLeader = this.state.players[client.sessionId].isLobbyLeader;
+    delete this.state.players[client.sessionId];
+    if (wasLobbyLeader) {
+      for (let id in this.state.players) {
+        const player: Player = this.state.players[id];
+        player.isLobbyLeader = true;
+      }
+    }
   }
 
   onDispose() {
