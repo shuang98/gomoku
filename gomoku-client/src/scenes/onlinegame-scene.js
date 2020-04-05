@@ -7,6 +7,7 @@ import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
 import { OnlineGameOverScene } from "./gameover-scene";
 import { BOX_SIZE, BOARD_SIZE } from "../lib/constants";
+import { X, O } from "../lib/constants";
 
 export class OnlineGameScene extends Scene {
   isOnline = true;
@@ -38,24 +39,32 @@ export class OnlineGameScene extends Scene {
       if (!this.isPlayerTurn()) { return; }
       let col = this.cursorTracker.col
       let row = this.cursorTracker.row
+      console.log(row, col);
       if (event.button == 0 && this.game.getBoardSquare(row, col) == this.game.EMPTY) {
         this.renderSymbolOnSquare(row, col, this.game.turn);
         this.game.selectSquare(row, col);
       }
     }
     this.room.state.board.onChange = (symbol, index) => {
+      if (symbol != X && symbol != O) {
+        return;
+      }
       let row = Math.floor(index / BOARD_SIZE);
       let col = index % BOARD_SIZE;
       this.renderSymbolOnSquare(row, col, symbol);
     }
     this.room.state.winner.onChange = (changes) => {
+      console.log(changes);
       let winner = {}
       for (const { field, value }
         of changes) {
         winner[field] = value;
       }
-      let gameOverScene = new OnlineGameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer, this.room);
-      this.transitionToScene(gameOverScene);
+      console.log(winner);
+      if (winner.playerSymbol) {
+        let gameOverScene = new OnlineGameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer, this.room);
+        this.transitionToScene(gameOverScene);
+      }
     }
   }
 
@@ -72,6 +81,7 @@ export class OnlineGameScene extends Scene {
   endScene() {
     super.endScene();
     this.room.removeAllListeners();
+    this.mouse.stop();
   }
 
 }

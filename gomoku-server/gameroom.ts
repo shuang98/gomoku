@@ -68,6 +68,12 @@ class GameState extends Schema {
     return new ArraySchema<string>(...new Array<string>(size).fill(EMPTY));
   }
 
+  clearBoard() {
+    for (let i = 0; i < this.boardSize * this.boardSize; i++) {
+      this.board[i] = EMPTY;      
+    }
+  }
+
   updateCursor({ row, col }: { row: number, col: number }) {
     this.cursor.row = row;
     this.cursor.col = col;
@@ -154,6 +160,7 @@ export class GameRoom extends Room<GameState> {
     }
     this.state.setBoardSquare(row, col, this.state.turn);
     if (this.state.isFiveInARow(row, col)) {
+      console.log(this.state.players[client.sessionId]);
       this.state.winner = this.state.players[client.sessionId];
       this.state.playing = false;
       return;
@@ -169,12 +176,20 @@ export class GameRoom extends Room<GameState> {
         break;
       case MSG_TYPES.UPDATE_CURSOR:
         this.state.updateCursor(message.payload);
+        break;
       case MSG_TYPES.START_MATCH:
-        if (this.clients.length == 2) {this.state.playing = true;}
+        if (this.clients.length == 2) {
+          this.state.playing = true;
+          this.state.clearBoard();
+          const player = new Player("")
+          player.playerSymbol = "";
+          this.state.winner = player;
+        }
+        break;
       default:
         break;
     }
-    // console.log(message);
+    console.log(message);
   }
 
   onLeave(client: Client, consented: boolean) {
