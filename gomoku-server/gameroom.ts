@@ -21,6 +21,8 @@ class Player extends Schema {
 
   @type("boolean")
   isLobbyLeader: boolean = false;
+
+  isReady: boolean = false;
 }
 
 class Cursor extends Schema {
@@ -132,6 +134,21 @@ class GameState extends Schema {
     return false;
   }
 
+  areBothPlayersReady() {
+    for (const key in this.players) {
+      if (!this.players[key].isReady) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  resetPlayerReadyStatus() {
+    for (const key in this.players) {
+      this.players[key].isReady = false;
+    }
+  }
+
 }
 
 export class GameRoom extends Room<GameState> {
@@ -160,7 +177,6 @@ export class GameRoom extends Room<GameState> {
     }
     this.state.setBoardSquare(row, col, this.state.turn);
     if (this.state.isFiveInARow(row, col)) {
-      console.log(this.state.players[client.sessionId]);
       this.state.winner = this.state.players[client.sessionId];
       this.state.playing = false;
       return;
@@ -177,8 +193,10 @@ export class GameRoom extends Room<GameState> {
       case MSG_TYPES.UPDATE_CURSOR:
         this.state.updateCursor(message.payload);
         break;
-      case MSG_TYPES.START_MATCH:
-        if (this.clients.length == 2) {
+      case MSG_TYPES.READY_PLAYER:
+        this.state.players[client.sessionId].isReady = true;
+        if (this.clients.length == 2 && this.state.areBothPlayersReady()) {
+          this.state.resetPlayerReadyStatus();
           this.state.playing = true;
           this.state.clearBoard();
           const player = new Player("")
@@ -189,7 +207,6 @@ export class GameRoom extends Room<GameState> {
       default:
         break;
     }
-    console.log(message);
   }
 
   onLeave(client: Client, consented: boolean) {
