@@ -8,7 +8,7 @@
     "loadtest": "colyseus-loadtest loadtest/example.ts --room my_room --numClients 2",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "deploy": "git subtree push --prefix gomoku-server heroku master"
+    "deploy": "cd .. && git subtree push --prefix gomoku-server heroku master && cd gomoku-server"
   },
   "author": "",
   "license": "UNLICENSED",
