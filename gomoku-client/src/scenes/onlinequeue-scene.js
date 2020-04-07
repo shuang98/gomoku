@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 import { OnlineLobbyScene } from "./onlinelobby-scene";
 
 export class OnlineQueueScene extends Scene {
-  SERVER_CONNECTION = "ws://localhost:2567";
+  SERVER_CONNECTION = process.env.NODE_ENV == "development" ? "ws://localhost:2567" : "ws://young-temple-84590.herokuapp.com/";
   waiting = true;
   sceneLoadFunction(loader, resources) {
     super.sceneLoadFunction(loader, resources);
