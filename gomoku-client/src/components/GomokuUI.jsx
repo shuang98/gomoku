@@ -1,21 +1,25 @@
 import React from "react";
 import PlayerList from "./PlayerList.jsx";
-import LobbyList from "./LobbyList.jsx";
-
-function GomokuUI({ scene }) {
-  let players = null;
-  if (scene && scene.isInGame && !scene.isOnline) {
-    players = {x: "player 1", o: "player 2"};
+import { useSelector } from "react-redux";
+import { GameScene } from "../scenes/game-scene.js";
+import { OnlineGameScene } from "../scenes/onlinegame-scene.js";
+import { OnlineLobbyScene } from "../scenes/onlinelobby-scene.js";
+function GomokuUI() {
+  let scene = useSelector(state => state.scene);
+  if (scene instanceof GameScene) {
     return (<div>
-      <PlayerList players={players}></PlayerList>
+      <PlayerList></PlayerList>
     </div>)
-  } else if (scene && scene.isInGame && scene.isOnline) {
+  } else if (scene instanceof OnlineGameScene) {
     return (<div>
-      <LobbyList scene={scene}></LobbyList>
+      <PlayerList></PlayerList>
+    </div>)
+  } else if (scene instanceof OnlineLobbyScene) {
+    return (<div>
+      <PlayerList></PlayerList>
     </div>)
   }
-  return (<div></div>);
-  
+  return (<div></div>)
 }
 
 export default GomokuUI;

@@ -198,6 +198,7 @@ export class GameRoom extends Room<GameState> {
         if (this.clients.length == 2 && this.state.areBothPlayersReady()) {
           this.state.resetPlayerReadyStatus();
           this.state.playing = true;
+          this.state.turn = X;
           this.state.clearBoard();
           const player = new Player("")
           player.playerSymbol = "";
