@@ -38,4 +38,10 @@ export class LobbyListener {
     }
 
   }
+
+  stop() {
+    this.room.state.players.onAdd = null;
+    this.room.state.players.onRemove = null;
+    this.room.state.players.onChange = null;
+  }
 }

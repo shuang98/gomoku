@@ -2,10 +2,11 @@ import { Scene } from "./scene";
 import { OnlineGameScene } from "./onlinegame-scene";
 import { getButton } from "../lib/utils";
 import { MSG_TYPES } from "../lib/constants";
+import store from "../store";
+import { setPlayers } from "../actions";
+import { LobbyListener } from "../lib/lobby-listener";
 
 export class OnlineLobbyScene extends Scene {
-  isInGame = true;
-  isOnline = true;
   constructor(app, viewport, room) {
     super(app, viewport);
     this.room = room;
@@ -15,9 +16,14 @@ export class OnlineLobbyScene extends Scene {
   sceneLoadFunction(loader, resources) {
     super.sceneLoadFunction(loader, resources);
     this.viewContainer.addChild(this.startGameButton());
+    const lobbyListener = new LobbyListener(this.room, (players) => {
+      store.dispatch(setPlayers(players));
+    });
+    lobbyListener.start();
     this.room.onStateChange(state => {
       if (state.playing) {
         this.room.removeAllListeners();
+        lobbyListener.stop();
         let newGameScene = new OnlineGameScene(this.app, this.viewport, this.room);
         this.transitionToScene(newGameScene);
       }

@@ -8,8 +8,9 @@ import { BOX_SIZE, BOARD_SIZE } from './lib/constants';
 /**
  * Initializes pixi app for gomoku
  * @param {PIXI.Application} app 
+ * @param {String} containerId
  */
-export function initializeGomokuCanvas(app) {
+export function initializeGomokuCanvas(app, containerId) {
   let WORLD_SIZE = BOARD_SIZE * BOX_SIZE;
   let viewport = new Viewport({
     screenWidth: window.innerWidth,
@@ -30,7 +31,7 @@ export function initializeGomokuCanvas(app) {
     viewport.moveCenter(WORLD_SIZE / 2, WORLD_SIZE / 2);
   })
   
-  document.getElementById("gomoku-canvas").appendChild(app.view);
+  document.getElementById(containerId).appendChild(app.view);
   
   app.stage.addChild(viewport);
   viewport

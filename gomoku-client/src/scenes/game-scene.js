@@ -6,9 +6,10 @@ import { Scene } from "./scene";
 import { GameOverScene } from "./gameover-scene";
 import { CursorTracker } from "../lib/cursor-tracker";
 import { BOX_SIZE, BOARD_SIZE } from '../lib/constants';
+import store from '../store';
+import { setPlayers } from '../actions';
 
 export class GameScene extends Scene {
-  isInGame = true;
   constructor(app, viewport) {
     super(app, viewport);
     this.mouse = new MouseListener();
@@ -24,6 +25,7 @@ export class GameScene extends Scene {
     super.sceneLoadFunction(loader, resources);
     this.viewContainer.addChild(getGrid(BOARD_SIZE, BOX_SIZE));
     this.mouse.listen();
+    store.dispatch(setPlayers({x: "player 1", o: "player 2"}));
     this.cursorTracker = new CursorTracker(this, this.mouse);
     this.cursorTracker.start();
     this.mouse.onDown = (event) => {

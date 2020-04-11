@@ -1,5 +1,8 @@
 import { Room } from "colyseus.js";
 import { MSG_TYPES } from "./lib/constants";
+import store from "./store";
+import { setTurn } from "./actions";
+import { X, O, EMPTY } from "./lib/constants";
 
 export class Game {
   X = 'x';
@@ -8,9 +11,10 @@ export class Game {
   constructor(boardSize) {
     this.boardSize = boardSize;
     this.board = new Array(this.boardSize).fill(0).map(
-      () => new Array(this.boardSize).fill(this.EMPTY)
+      () => new Array(this.boardSize).fill(EMPTY)
     );
-    this.turn = this.X;
+    this.turn = X;
+    store.dispatch(setTurn(this.turn));
     this.onFinished = (winner) => {};
     this.finished = false;
   }
@@ -30,7 +34,8 @@ export class Game {
       this.finished = true;
       this.onFinished(this.turn);
     }
-    this.turn = this.turn == this.X ? this.O : this.X
+    this.turn = this.turn == X ? O : X
+    store.dispatch(setTurn(this.turn));
   }
 
   /**
@@ -40,7 +45,7 @@ export class Game {
    */
   isFiveInARow(row, col) {
     let board = this.board;
-    if (board[row][col] === this.EMPTY) {
+    if (board[row][col] === EMPTY) {
       return false;
     }
     let i, j, count;
@@ -94,6 +99,14 @@ export class OnlineGame {
   constructor(boardSize, room) {
     this.room = room;
     this.boardSize = boardSize;
+    this.room.state.onChange = (changes) => {
+      for (const {field, value} of changes) {
+        if (field == "turn") {
+          store.dispatch(setTurn(value));
+        }
+      }
+    }
+    store.dispatch(setTurn(X));
   }
 
   get turn() {

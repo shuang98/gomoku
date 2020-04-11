@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js'
+import store from "../store";
+import { setScene } from "../actions";
 
 export class Scene {
-  isInGame = false;
-  isOnline = false;
   constructor(app, viewport) {
     this.app = app;
     this.viewport = viewport;
@@ -17,7 +17,7 @@ export class Scene {
    * @param {*} resources 
    */
   sceneLoadFunction(loader, resources) {
-    this.app.setScene(this);
+    store.dispatch(setScene(this));
     this.viewport.addChild(this.viewContainer);
     this.loader = loader;
     this.resources = resources;
