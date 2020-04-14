@@ -22,6 +22,9 @@ class Player extends Schema {
   @type("boolean")
   isLobbyLeader: boolean = false;
 
+  @type("string")
+  name: string;
+
   isReady: boolean = false;
 }
 
@@ -204,6 +207,9 @@ export class GameRoom extends Room<GameState> {
           player.playerSymbol = "";
           this.state.winner = player;
         }
+        break;
+      case MSG_TYPES.SET_ONLINE_NAME:
+        this.state.players[client.sessionId].name = message.payload;
         break;
       default:
         break;
