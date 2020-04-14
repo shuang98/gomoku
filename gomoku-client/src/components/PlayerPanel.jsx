@@ -11,7 +11,7 @@ function PlayerPanel({symbol, name, styles}) {
     borderRight: "2px solid lightgrey",
   }
   return (
-    <div className="panel" style={styles}>
+    <div className="panel" style={{...styles, width: "250px"}}>
       <img src={img} style={imgStyles}></img>
       <h2 style={{margin: "auto"}}>{name}</h2>
     </div>

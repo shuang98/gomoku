@@ -2,6 +2,8 @@ import { Scene } from "./scene";
 import { Client } from "colyseus.js";
 import * as PIXI from 'pixi.js';
 import { OnlineLobbyScene } from "./onlinelobby-scene";
+import { SET_ONLINE_NAME } from "../actions";
+import store from "../store";
 
 export class OnlineQueueScene extends Scene {
   SERVER_CONNECTION = process.env.NODE_ENV == "development" ? "ws://localhost:2567" : "wss://young-temple-84590.herokuapp.com/";
@@ -26,6 +28,10 @@ export class OnlineQueueScene extends Scene {
 
   joinGame() {
     this.client.joinOrCreate("game").then(room => {
+      room.send({
+        action: SET_ONLINE_NAME,
+        payload: store.getState().onlineName
+      })
       room.onStateChange(state => {
         room.removeAllListeners();
         let lobby = new OnlineLobbyScene(this.app, this.viewport, room);

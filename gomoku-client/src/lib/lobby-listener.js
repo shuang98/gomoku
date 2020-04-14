@@ -13,7 +13,7 @@ export class LobbyListener {
 
   start() {
     const resolveName = (player) => {
-      let name = player.playerSymbol == this.clientSymbol ? "You" : "Opponent";
+      let name = player.name;
       if (player.isLobbyLeader) {
         name = name +  " (host)";
       }
