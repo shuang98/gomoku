@@ -6,7 +6,7 @@ import { Room } from "colyseus.js";
 import { OnlineCursorTracker } from "../lib/cursor-tracker";
 import * as PIXI from 'pixi.js'
 import { OnlineGameOverScene } from "./gameover-scene";
-import { BOX_SIZE, BOARD_SIZE } from "../lib/constants";
+import { BOX_SIZE, BOARD_SIZE, EMPTY } from "../lib/constants";
 import { X, O } from "../lib/constants";
 
 export class OnlineGameScene extends Scene {
@@ -22,7 +22,7 @@ export class OnlineGameScene extends Scene {
     this.mouse = new MouseListener();
     this.worldSize = BOX_SIZE * BOARD_SIZE;
     this.game = new OnlineGame(BOARD_SIZE, this.room);
-    this.playerSymbol = this.game.EMPTY;
+    this.playerSymbol = EMPTY;
   }
 
   sceneLoadFunction(loader, resources) {
@@ -37,7 +37,7 @@ export class OnlineGameScene extends Scene {
       if (!this.isPlayerTurn()) { return; }
       let col = this.cursorTracker.col
       let row = this.cursorTracker.row
-      if (event.button == 0 && this.game.getBoardSquare(row, col) == this.game.EMPTY) {
+      if (event.button == 0 && this.game.getBoardSquare(row, col) == EMPTY) {
         this.renderSymbolOnSquare(row, col, this.game.turn);
         this.game.selectSquare(row, col);
       }
@@ -50,16 +50,23 @@ export class OnlineGameScene extends Scene {
       let col = index % BOARD_SIZE;
       this.renderSymbolOnSquare(row, col, symbol);
     }
-    this.room.state.winner.onChange = (changes) => {
-      let winner = {}
-      for (const { field, value }
-        of changes) {
-        winner[field] = value;
+    const oldOnChange = this.room.state.onChange.bind({})
+    this.room.state.onChange = (changes) => {
+      oldOnChange(changes);
+      for (const { field, value } of changes) {
+        if (field == "winner") {
+          if (value) {
+            this.room.removeAllListeners();
+            this.room.state.board.onChange = () => {};
+            this.room.state.onChange = () => {};
+            let gameOverScene = new OnlineGameOverScene(this.app, this.viewport, value, this.viewContainer, this.room);
+            this.transitionToScene(gameOverScene);
+          }    
+
+        }
+          
       }
-      if (winner.playerSymbol) {
-        let gameOverScene = new OnlineGameOverScene(this.app, this.viewport, winner.playerSymbol, this.viewContainer, this.room);
-        this.transitionToScene(gameOverScene);
-      }
+      
     }
   }
 

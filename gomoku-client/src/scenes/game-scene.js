@@ -1,11 +1,10 @@
-import * as PIXI from 'pixi.js'
-import { clamp, getGrid, getXOSprite } from "../lib/utils";
+import { getGrid, getXOSprite } from "../lib/utils";
 import { MouseListener } from "../lib/mouse-listener";
 import { Game } from "../game";
 import { Scene } from "./scene";
 import { GameOverScene } from "./gameover-scene";
 import { CursorTracker } from "../lib/cursor-tracker";
-import { BOX_SIZE, BOARD_SIZE } from '../lib/constants';
+import { BOX_SIZE, BOARD_SIZE, EMPTY } from '../lib/constants';
 import store from '../store';
 import { setPlayers } from '../actions';
 
@@ -32,7 +31,7 @@ export class GameScene extends Scene {
       event.preventDefault();
       const row = this.cursorTracker.row;
       const col = this.cursorTracker.col;
-      if (event.button == 0 && this.game.getBoardSquare(row, col) == this.game.EMPTY) {
+      if (event.button == 0 && this.game.getBoardSquare(row, col) == EMPTY) {
         let sprite = getXOSprite(this.game.turn, BOX_SIZE, resources);
         sprite.position = this.cursorTracker.position;
         this.viewContainer.addChild(sprite);

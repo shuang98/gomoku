@@ -17,7 +17,7 @@ export class OnlineLobbyScene extends Scene {
     super.sceneLoadFunction(loader, resources);
     this.viewContainer.addChild(this.startGameButton());
     const lobbyListener = new LobbyListener(this.room, (players) => {
-      store.dispatch(setPlayers(players));
+      store.dispatch(setPlayers({...players}));
     });
     lobbyListener.start();
     this.room.onStateChange(state => {

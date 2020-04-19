@@ -6,6 +6,7 @@ import { OnlineGameScene } from "../scenes/onlinegame-scene.js";
 import { OnlineLobbyScene } from "../scenes/onlinelobby-scene.js";
 import { OnlineMenuScene } from "../scenes/onlinemenu-scene.js";
 import PlayerNameForm from "./PlayerNameForm.jsx";
+import SwitchPlayerButton from "./SwitchPlayerButton.jsx";
 function GomokuUI() {
   let scene = useSelector(state => state.scene);
   if (scene instanceof GameScene) {
@@ -19,6 +20,7 @@ function GomokuUI() {
   } else if (scene instanceof OnlineLobbyScene) {
     return (<div>
       <PlayerList></PlayerList>
+      <SwitchPlayerButton scene={scene} styles={{top: "120px", left: "20px"}}></SwitchPlayerButton>
     </div>)
   } else if (scene instanceof OnlineMenuScene) {
     return (<div>
