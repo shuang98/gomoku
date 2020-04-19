@@ -57,8 +57,8 @@ class GameState extends Schema {
   @type(Cursor)
   cursor: Cursor = new Cursor(0, 0);
 
-  @type(Player)
-  winner: Player;
+  @type("string")
+  winner: string;
 
   boardSize: number;
 
@@ -75,7 +75,7 @@ class GameState extends Schema {
 
   clearBoard() {
     for (let i = 0; i < this.boardSize * this.boardSize; i++) {
-      this.board[i] = EMPTY;      
+      this.board[i] = EMPTY;
     }
   }
 
@@ -94,7 +94,7 @@ class GameState extends Schema {
     this.board[index] = symbol;
   }
 
-  isFiveInARow(row:number, col:number) {
+  isFiveInARow(row: number, col: number) {
     if (this.getBoardSquare(row, col) === EMPTY) {
       return false;
     }
@@ -173,15 +173,17 @@ export class GameRoom extends Room<GameState> {
   }
 
   handleSelectSquareMessage(client: Client, msg: any) {
-    let {row, col} = msg.payload;
+    let { row, col } = msg.payload;
     if (this.state.getBoardSquare(row, col) != EMPTY) {
       client.send("ERROR");
       return;
     }
     this.state.setBoardSquare(row, col, this.state.turn);
     if (this.state.isFiveInARow(row, col)) {
-      this.state.winner = this.state.players[client.sessionId];
+      this.state.winner = this.state.players[client.sessionId].playerSymbol;
       this.state.playing = false;
+      this.state.clearBoard();
+      this.state.turn = EMPTY;
       return;
     }
     this.state.turn = this.state.turn == X ? O : X;
@@ -200,20 +202,26 @@ export class GameRoom extends Room<GameState> {
         this.state.players[client.sessionId].isReady = true;
         if (this.clients.length == 2 && this.state.areBothPlayersReady()) {
           this.state.resetPlayerReadyStatus();
+          this.state.winner = EMPTY;
           this.state.playing = true;
           this.state.turn = X;
-          this.state.clearBoard();
-          const player = new Player("")
-          player.playerSymbol = "";
-          this.state.winner = player;
         }
         break;
       case MSG_TYPES.SET_ONLINE_NAME:
         this.state.players[client.sessionId].name = message.payload;
         break;
+      case MSG_TYPES.SWITCH_PLAYER_SYMBOLS:
+        for (const id in this.state.players) {
+          const symbol = this.state.players[id].playerSymbol;
+          this.state.players[id].playerSymbol = symbol == X ? O : X
+          console.log(this.state.players[id].name, this.state.players[id].playerSymbol);
+        }
+        break;
       default:
         break;
     }
+    console.log(message);
+
   }
 
   onLeave(client: Client, consented: boolean) {
