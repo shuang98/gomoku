@@ -3,7 +3,7 @@ import { OnlineGameScene } from "../scenes/onlinegame-scene";
 import * as PIXI from 'pixi.js'
 import { MouseListener } from "./mouse-listener";
 import { getXOSprite, clamp } from "./utils";
-import { BOX_SIZE } from "./constants";
+import { BOX_SIZE, EMPTY } from "./constants";
 
 const CURSOR_ALPHA = 0.25;
 const TICKER_ID = "cursor_ticker";
@@ -72,7 +72,7 @@ export class CursorTracker {
     let col = Math.floor(cursor.x / BOX_SIZE);
     let row = Math.floor(cursor.y / BOX_SIZE);
     this.sprite.position = cursor;
-    if (this.scene.game.getBoardSquare(row, col) === this.scene.game.EMPTY) {
+    if (this.scene.game.getBoardSquare(row, col) === EMPTY) {
       this.sprite.alpha = CURSOR_ALPHA;
     } else {
       this.sprite.alpha = 0;

@@ -12,6 +12,9 @@ export class LobbyListener {
   }
 
   start() {
+    // this.room.onStateChange(state => {
+    //   console.log(state.players);
+    // })
     const resolveName = (player) => {
       let name = player.name;
       if (player.isLobbyLeader) {
@@ -19,29 +22,52 @@ export class LobbyListener {
       }
       return name;
     }
-    for (const id in this.room.state.players) {
-      const player = this.room.state.players[id];
-      this.players[player.playerSymbol] = resolveName(player);
+    const setOnChange = (player) => {
+      player.onChange = (changes) => {
+        // console.log(changes);
+        for (const {field, value, previousValue} of changes) {
+          if (field == "playerSymbol" && !this.players[value]) {
+            delete this.players[previousValue];
+          }
+        }
+        this.players[player.playerSymbol] = resolveName(player);
+        this.onLobbyChange(this.players);
+      }
     }
-    this.onLobbyChange({...this.players});
+    const resolvePlayers = () => {
+      let players = {}
+      for (const id in this.room.state.players) {
+        const player = this.room.state.players[id];
+        players[player.playerSymbol] = resolveName(player);
+      }
+      return players;
+    }
+    
+    this.players = resolvePlayers();
+    this.onLobbyChange(this.players);
+    for (const id in this.room.state.players) {
+        const player = this.room.state.players[id];
+        setOnChange(player);
+    }
     this.room.state.players.onAdd = (player, key) => {
-      this.players[player.playerSymbol] = resolveName(player);
-      this.onLobbyChange({...this.players});
+      this.players[player.playerSymbol] = resolveName(player)
+      setOnChange(player);
+      this.onLobbyChange(this.players);
     }
     this.room.state.players.onRemove = (player, key) => {
       delete this.players[player.playerSymbol];
-      this.onLobbyChange({...this.players});
+      player.onChange = ()=>{};
+      this.onLobbyChange(this.players);
     }
-    this.room.state.players.onChange = (player, key) => {
-      this.players[player.playerSymbol] = resolveName(player);
-      this.onLobbyChange({...this.players});
-    }
-
   }
 
   stop() {
-    this.room.state.players.onAdd = null;
-    this.room.state.players.onRemove = null;
-    this.room.state.players.onChange = null;
+    for (const id in this.room.state.players) {
+      const player = this.room.state.players[id];
+      player.onChange = () => {};
+    }
+    this.room.state.players.onAdd = ()=>{};
+    this.room.state.players.onRemove = ()=>{};
+    
   }
 }

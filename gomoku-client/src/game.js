@@ -5,9 +5,6 @@ import { setTurn } from "./actions";
 import { X, O, EMPTY } from "./lib/constants";
 
 export class Game {
-  X = 'x';
-  O = 'o';
-  EMPTY = '0';
   constructor(boardSize) {
     this.boardSize = boardSize;
     this.board = new Array(this.boardSize).fill(0).map(
@@ -89,9 +86,6 @@ export class Game {
 }
 
 export class OnlineGame {
-  X = 'x';
-  O = 'o';
-  EMPTY = '0';
   /**
    * 
    * @param {Room} room 
@@ -102,6 +96,7 @@ export class OnlineGame {
     this.room.state.onChange = (changes) => {
       for (const {field, value} of changes) {
         if (field == "turn") {
+          console.log(field, value);
           store.dispatch(setTurn(value));
         }
       }

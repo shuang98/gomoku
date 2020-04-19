@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 function PlayerList() {
   const players = useSelector(state => state.players);
   const turn = useSelector(state => state.turn);
+  console.log(turn);
   const color = {
     x: "red",
     o: "blue"

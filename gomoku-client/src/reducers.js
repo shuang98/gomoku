@@ -3,7 +3,7 @@ import { SET_PLAYERS, SET_TURN, SET_SCENE, SET_ONLINE_NAME } from "./actions";
 export function players(state={}, action) {
   switch (action.type) {
     case SET_PLAYERS:
-      return action.players
+      return {...action.players}
     default:
       return state;
   }

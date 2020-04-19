@@ -73,6 +73,7 @@ export class OnlineGameOverScene extends GameOverScene {
   }
   rematchButton() {
     let onClick = (e) => {
+      this.room.removeAllListeners();
       let lobby = new OnlineLobbyScene(this.app, this.viewport, this.room);
       this.transitionToScene(lobby);
     }
