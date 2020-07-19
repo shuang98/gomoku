@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "colyseus.js": "^0.12.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "pixi-viewport": "^4.10.0",
     "pixi.js": "^5.2.1",
     "react": "^16.13.1",
